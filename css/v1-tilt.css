@@ -50,6 +50,26 @@
     0 10px 22px rgba(0, 0, 0, 0.4);
 }
 
+/* Светлая тема: тёмный градиент secondary-кнопки в паре с тёмным же
+   text-primary давал контраст ~1.04:1 (текст был нечитаем) —
+   даём светлый вариант той же 3D-кнопки с тёмным текстом (~16:1) */
+[data-theme="light"] .btn-secondary {
+  background: linear-gradient(180deg, #ffffff, #e9ebf6);
+  text-shadow: none;
+  border-bottom-color: #b9bed8;
+  box-shadow:
+    0 5px 0 #b9bed8,
+    0 10px 22px rgba(26, 26, 46, 0.18);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: linear-gradient(180deg, #ffffff, #f0f2fa);
+  border-bottom-color: var(--accent);
+  box-shadow:
+    0 5px 0 var(--accent),
+    0 10px 22px rgba(91, 76, 219, 0.3);
+}
+
 .btn:hover {
   transform: perspective(900px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(-4px);
 }
