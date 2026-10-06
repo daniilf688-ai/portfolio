@@ -1,0 +1,109 @@
+/* ============================================
+   VARIANT 4 — ЛЕТО / КОНФЕТТИ (светлый, тёплый)
+   Кремовый фон, конфетти, карамельные карточки
+   ============================================ */
+
+:root {
+  --bg-primary: #fff6ec;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fffaf2;
+  --text-primary: #4a3728;
+  --text-secondary: #7a6350;
+  --text-muted: #a08a72;
+  --accent: #ff7e5f;
+  --accent-hover: #f2684a;
+  --accent-text: #e0522f;
+  --on-accent: #ffffff;
+  --accent-soft: rgba(255, 126, 95, 0.14);
+  --border: #ffe3cc;
+  --shadow: 0 14px 34px rgba(255, 126, 95, 0.2);
+  --radius: 22px;
+  --radius-sm: 14px;
+  /* Fallback for elements outside sections (hero buttons, confetti) */
+  --sec: #ff7e5f;
+  --sec-soft: rgba(255, 126, 95, 0.16);
+}
+
+#about      { --sec: #ff7e5f; --sec-soft: rgba(255, 126, 95, 0.16); }
+#skills     { --sec: #ffb347; --sec-soft: rgba(255, 179, 71, 0.16); }
+#experience { --sec: #4ecdc4; --sec-soft: rgba(78, 205, 196, 0.16); }
+#projects   { --sec: #ff6b9d; --sec-soft: rgba(255, 107, 157, 0.16); }
+#hobbies    { --sec: #9b8cff; --sec-soft: rgba(155, 140, 255, 0.16); }
+#contact    { --sec: #6bc46b; --sec-soft: rgba(107, 196, 107, 0.16); }
+
+/* Конфетти-фон */
+body {
+  background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255, 179, 71, 0.35) 0 6px, transparent 7px),
+    radial-gradient(circle at 88% 8%, rgba(255, 107, 157, 0.32) 0 5px, transparent 6px),
+    radial-gradient(circle at 5% 78%, rgba(155, 140, 255, 0.32) 0 7px, transparent 8px),
+    radial-gradient(circle at 94% 62%, rgba(78, 205, 196, 0.34) 0 6px, transparent 7px),
+    radial-gradient(circle at 30% 44%, rgba(107, 196, 107, 0.32) 0 5px, transparent 6px),
+    radial-gradient(circle at 70% 90%, rgba(255, 126, 95, 0.32) 0 8px, transparent 9px);
+  background-size: 100% 100%;
+}
+
+.section-title { color: var(--sec); }
+.hero h1 span { color: var(--accent); }
+
+/* Карамельные карточки */
+.skill-card,
+.exp-card,
+.project-card,
+.info-item,
+.contact-form {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 26px rgba(255, 126, 95, 0.12);
+}
+
+.skill-card:hover,
+.exp-card:hover,
+.project-card:hover,
+.info-item:hover {
+  border-color: var(--sec);
+  box-shadow: 0 16px 36px var(--sec-soft);
+  transform: translateY(-6px);
+}
+
+/* Верхняя цветная плашка на карточках */
+.skill-card,
+#projects .project-card,
+#hobbies .project-card {
+  border-top: 6px solid var(--sec);
+}
+
+/* Тёплые прогресс-бары */
+.skill-progress {
+  background: linear-gradient(90deg, var(--sec), color-mix(in srgb, var(--sec) 55%, white));
+}
+.skill-level { color: var(--sec); }
+
+/* Таймлайн */
+.timeline::before { background: var(--border); }
+.exp-card::before { background: var(--accent); border-color: var(--bg-primary); }
+.exp-card { border-left: 6px solid var(--sec); }
+.exp-period { color: var(--sec); }
+
+/* Кнопки-лимон */
+.btn {
+  border-radius: 16px;
+  font-weight: 700;
+}
+.btn-primary { background: var(--sec); color: #ffffff; box-shadow: 0 8px 20px var(--sec-soft); }
+.btn-primary:hover { transform: translateY(-2px) rotate(-1deg); }
+.btn-secondary { background: #ffffff; border: 2px solid var(--border); }
+
+/* Тема-кнопки */
+.theme-btn { border: 2px solid var(--border); }
+.theme-btn.active { box-shadow: 0 0 0 3px var(--sec-soft); }
+
+/* Заголовок hero лёгкий наклон */
+.hero-badge {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  transform: rotate(-2deg);
+}

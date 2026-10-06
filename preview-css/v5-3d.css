@@ -1,0 +1,253 @@
+/* ============================================
+   VARIANT 5 — 3D-ГЛУБИНА (тёмный)
+   Экструдированные заголовки, «слоёные» карточки,
+   3D-кнопки, парящие фигуры, tilt за курсором
+   ============================================ */
+
+:root {
+  --bg-primary: #0b0a1c;
+  --bg-secondary: #131130;
+  --bg-card: linear-gradient(180deg, #252050, #1a1744);
+  --bg-card-hover: linear-gradient(180deg, #2c2660, #1e1b4c);
+  --text-primary: #f2efff;
+  --text-secondary: #b6aee0;
+  --text-muted: #8f86c4;
+  --accent: #7c5cff;
+  --accent-hover: #6a47ff;
+  --accent-text: #b3a6ff;
+  --on-accent: #ffffff;
+  --accent-soft: rgba(124, 92, 255, 0.2);
+  --border: rgba(124, 92, 255, 0.3);
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  --radius: 18px;
+  --radius-sm: 12px;
+  /* 3D-палитра */
+  --gold: #ffd166;
+  --cyan: #53e0ff;
+  --pink: #ff5dc8;
+  --edge: #2c2457; /* "грань" нижних слоёв карточек */
+  --edge-dark: #221c46;
+}
+
+body {
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(124, 92, 255, 0.18), transparent 60%),
+    radial-gradient(800px 500px at -10% 25%, rgba(83, 224, 255, 0.1), transparent 60%),
+    radial-gradient(700px 400px at 50% 115%, rgba(255, 93, 200, 0.12), transparent 60%),
+    var(--bg-primary);
+  background-attachment: fixed;
+  perspective: 1200px;
+}
+
+/* ---------- Экструдированные заголовки ---------- */
+.hero h1 span {
+  color: var(--gold);
+  text-shadow:
+    0 1px 0 #d9a33a,
+    0 2px 0 #c9972f,
+    0 3px 0 #b98a26,
+    0 4px 0 #a87d1d,
+    0 5px 0 #977015,
+    0 6px 0 #86630c,
+    0 8px 14px rgba(0, 0, 0, 0.5),
+    0 14px 26px rgba(0, 0, 0, 0.4);
+}
+
+.section-title {
+  color: var(--text-primary);
+  text-shadow:
+    0 1px 0 #4b41a8,
+    0 2px 0 #453c9e,
+    0 3px 0 #3f3794,
+    0 4px 0 #39318a,
+    0 5px 0 #332c80,
+    0 7px 14px rgba(0, 0, 0, 0.45);
+}
+
+.hero-badge {
+  background: linear-gradient(180deg, #2c2660, #1e1b4c);
+  border: 1px solid var(--border);
+  border-bottom: 4px solid var(--edge);
+  color: var(--accent-text);
+  box-shadow: 0 4px 0 var(--edge-dark), 0 8px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- «Слоёные» 3D-карточки ---------- */
+.skill-card,
+.exp-card,
+.project-card,
+.info-item,
+.contact-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-bottom: 6px solid var(--edge);
+  border-radius: var(--radius);
+  box-shadow:
+    0 1px 0 var(--edge),
+    0 3px 0 var(--edge),
+    0 5px 0 var(--edge-dark),
+    0 10px 24px rgba(0, 0, 0, 0.45);
+  transform-style: preserve-3d;
+}
+
+.skill-card:hover,
+.exp-card:hover,
+.project-card:hover,
+.info-item:hover {
+  background: var(--bg-card-hover);
+  border-bottom-width: 6px;
+  box-shadow:
+    0 1px 0 var(--edge),
+    0 4px 0 var(--edge),
+    0 7px 0 var(--edge-dark),
+    0 18px 40px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(124, 92, 255, 0.25);
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px);
+}
+
+.contact-form:hover {
+  box-shadow:
+    0 1px 0 var(--edge),
+    0 4px 0 var(--edge),
+    0 7px 0 var(--edge-dark),
+    0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Полоски навыков — объёмные */
+.skill-progress {
+  background: linear-gradient(180deg, #b9a8ff, var(--accent) 55%, #5a3ee0);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    0 2px 0 #4838a8,
+    0 0 14px rgba(124, 92, 255, 0.4);
+}
+.skill-bar {
+  height: 12px;
+  background: linear-gradient(180deg, #06061a, #14122d);
+  border: 1px solid rgba(124, 92, 255, 0.25);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+.skill-level { color: var(--gold); }
+
+/* ---------- Таймлайн с 3D-точками ---------- */
+.timeline::before {
+  background: linear-gradient(180deg, var(--accent), var(--pink));
+  width: 3px;
+  left: 6.5px;
+  box-shadow: 0 0 12px rgba(124, 92, 255, 0.5);
+}
+.exp-card::before {
+  background: radial-gradient(circle at 30% 30%, #d9d0ff, var(--accent) 70%);
+  border: 2px solid var(--bg-primary);
+  box-shadow:
+    0 2px 0 var(--edge),
+    0 0 16px rgba(124, 92, 255, 0.6);
+}
+.exp-period { color: var(--gold); }
+.exp-achievements li::before { color: var(--accent-text); }
+
+/* ---------- 3D-кнопки ---------- */
+.btn {
+  border-radius: 14px;
+  font-weight: 700;
+  border-bottom: 5px solid rgba(0, 0, 0, 0.35);
+}
+.btn-primary {
+  background: linear-gradient(180deg, #9d83ff, #6a47ff 60%, #5638e0);
+  color: #ffffff;
+  border-bottom-color: #472cb8;
+  box-shadow: 0 5px 0 #472cb8, 0 10px 22px rgba(0, 0, 0, 0.45), 0 0 20px rgba(124, 92, 255, 0.35);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+.btn-secondary {
+  background: linear-gradient(180deg, #2a2455, #1e1b4c);
+  color: var(--text-primary);
+  border-bottom-color: #161338;
+  box-shadow: 0 5px 0 #161338, 0 10px 22px rgba(0, 0, 0, 0.4);
+}
+.btn:hover { transform: translateY(-3px); }
+.btn:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+  box-shadow: 0 2px 0 #472cb8, 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Тема-кнопки — чипы */
+.theme-btn {
+  border: 1px solid var(--border);
+  border-bottom: 3px solid var(--edge);
+  box-shadow: 0 3px 0 var(--edge-dark);
+}
+.theme-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+
+/* ---------- Парящие 3D-фигуры в hero ---------- */
+.layer-1 { /* вращающееся кольцо */
+  border: 3px solid rgba(124, 92, 255, 0.5);
+  background: linear-gradient(120deg, rgba(124, 92, 255, 0.25), transparent);
+  box-shadow: 0 0 50px rgba(124, 92, 255, 0.35), inset 0 0 30px rgba(124, 92, 255, 0.25);
+  filter: none;
+  animation: spinRing 22s linear infinite;
+}
+.layer-2 { /* золотой шар-орб */
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #ffe9ad, var(--gold) 38%, #ff9d3c 70%, rgba(255, 120, 40, 0.25));
+  box-shadow: 0 0 60px rgba(255, 190, 90, 0.6), inset -8px -10px 18px rgba(180, 90, 10, 0.4), inset 6px 6px 14px rgba(255, 255, 255, 0.5);
+  filter: none;
+  animation: float 6s ease-in-out infinite;
+}
+.layer-3 { /* вращающийся «кристалл» */
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--cyan), #1e6bff 70%);
+  box-shadow:
+    inset -4px -5px 8px rgba(0, 0, 30, 0.4),
+    inset 4px 5px 10px rgba(255, 255, 255, 0.6),
+    0 0 30px rgba(83, 224, 255, 0.55);
+  filter: none;
+  animation: float2 5.5s ease-in-out infinite, spinGem 14s linear infinite;
+}
+
+@keyframes spinRing {
+  from { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.06); }
+  to   { transform: rotate(360deg) scale(1); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-18px) rotate(8deg); }
+}
+@keyframes spinGem {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Контакты */
+.contact-item .icon {
+  background: linear-gradient(180deg, #2c2660, #1e1b4c);
+  border: 1px solid var(--border);
+  border-bottom: 3px solid var(--edge);
+  color: var(--gold);
+  box-shadow: 0 3px 0 var(--edge-dark);
+}
+.contact-form .btn-primary {
+  background: linear-gradient(180deg, #53e0ff, #2f7bff 60%, #1e56e0);
+  border-bottom-color: #1640b8;
+  box-shadow: 0 5px 0 #1640b8, 0 10px 22px rgba(0, 0, 0, 0.45);
+}
+
+.form-group input,
+.form-group textarea {
+  background: linear-gradient(180deg, #0d0c22, #121030);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Тэги как мини-чипы */
+.tag {
+  background: linear-gradient(180deg, #2c2660, #1e1b4c);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--edge);
+  color: var(--accent-text);
+}
+
+/* Заголовок-подпись hero */
+#typed-text { color: var(--text-secondary); }

@@ -1,0 +1,89 @@
+/* 1-TILT интеграция: радужные градиенты + 3D-tilt кнопок (style 3 по умолчанию) */
+@import url('style.css');
+
+/* 3D-экструзия кнопок */
+.btn,
+.theme-btn,
+.edit-btn,
+.burger,
+.add-item-btn,
+.delete-card-btn,
+.image-edit-btn {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.btn {
+  border-radius: 14px;
+  font-weight: 700;
+  border-bottom: 5px solid rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #9a91ff, #6a58ff 60%, #5443e0);
+  border-bottom-color: #4a3cc7;
+  box-shadow:
+    0 5px 0 #4a3cc7,
+    0 10px 22px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(124, 108, 255, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, #2a2a35, #1f1f28);
+  color: var(--text-primary);
+  border-bottom-color: #15151d;
+  box-shadow:
+    0 5px 0 #15151d,
+    0 10px 22px rgba(0, 0, 0, 0.4);
+}
+
+.btn:hover {
+  transform: perspective(900px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(-4px);
+}
+.btn:active {
+  transform: perspective(900px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(3px);
+}
+
+.theme-btn {
+  border: 1px solid var(--border);
+  border-bottom: 3px solid rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 3px 0 #15151d,
+    0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.theme-btn:hover {
+  transform: perspective(700px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(-2px);
+}
+.theme-btn:active {
+  transform: perspective(700px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(2px);
+  border-bottom-width: 1px;
+}
+
+.edit-btn {
+  border-radius: 999px;
+  border-bottom: 3px solid rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 3px 0 #4a3cc7,
+    0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.edit-btn:hover {
+  transform: perspective(700px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(-2px);
+}
+.edit-btn:active {
+  transform: perspective(700px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(2px);
+  border-bottom-width: 1px;
+}
+
+.burger:hover,
+.add-item-btn:hover,
+.image-edit-btn:hover {
+  transform: perspective(700px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(-2px);
+}
+.delete-card-btn:hover {
+  transform: perspective(500px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateY(-1px);
+}
+
+.mobile-nav a:hover {
+  transform: perspective(600px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateX(6px);
+}
