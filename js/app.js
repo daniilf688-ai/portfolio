@@ -538,21 +538,141 @@
     'typed-text'
   ];
 
+  // ---------- OWNER PIN GATE ----------
+  // Режим редактирования открывается только после ввода PIN владельца.
+  // В коде хранится хеш (SHA-256), а не сам PIN.
+  const OWNER_PIN_SHA256 = 'd10d965dfd2a17d32d1c1d845bf2f51b43ba3b36a67abcb9863c98e449f2be1e';
+  const OWNER_PIN_DJB2 = 2088258626; // fallback, если crypto.subtle недоступен (не-secure context)
+  const OWNER_SESSION_KEY = 'portfolioOwnerSession';
+
+  function isOwnerSession() {
+    try {
+      return sessionStorage.getItem(OWNER_SESSION_KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function markOwnerSession() {
+    try {
+      sessionStorage.setItem(OWNER_SESSION_KEY, '1');
+    } catch (e) { /* приватный режим браузера — просто не запоминаем */ }
+  }
+
+  function verifyPin(pin) {
+    const text = String(pin == null ? '' : pin);
+    if (window.crypto && window.crypto.subtle && window.TextEncoder) {
+      return window.crypto.subtle
+        .digest('SHA-256', new TextEncoder().encode(text))
+        .then((buf) => {
+          const hex = Array.prototype.map
+            .call(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0'))
+            .join('');
+          return hex === OWNER_PIN_SHA256;
+        })
+        .catch(() => false);
+    }
+    // djb2-fallback
+    let h = 5381;
+    for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) >>> 0;
+    return Promise.resolve(h === OWNER_PIN_DJB2);
+  }
+
+  function initPinModal(onSuccess) {
+    const modal = document.getElementById('pin-modal');
+    if (!modal) return { open: function () {} };
+    const card = modal.querySelector('.pin-modal__card');
+    const input = document.getElementById('pin-input');
+    const error = document.getElementById('pin-error');
+    const submitBtn = document.getElementById('pin-submit');
+    const closeBtn = document.getElementById('pin-close');
+    const backdrop = modal.querySelector('[data-pin-close]');
+    let active = false;
+
+    function close() {
+      active = false;
+      modal.hidden = true;
+      document.body.classList.remove('pin-open');
+      const editBtn = document.getElementById('edit-btn');
+      if (editBtn) editBtn.focus();
+    }
+
+    function open() {
+      active = true;
+      modal.hidden = false;
+      document.body.classList.add('pin-open');
+      error.hidden = true;
+      input.value = '';
+      input.focus();
+    }
+
+    function fail() {
+      error.hidden = false;
+      input.value = '';
+      card.classList.remove('pin-shake');
+      void card.offsetWidth; // перезапуск анимации
+      card.classList.add('pin-shake');
+      input.focus();
+    }
+
+    function submit() {
+      verifyPin(input.value).then((ok) => {
+        if (!ok) {
+          fail();
+          return;
+        }
+        markOwnerSession();
+        close();
+        if (typeof onSuccess === 'function') onSuccess();
+      });
+    }
+
+    submitBtn.addEventListener('click', submit);
+    closeBtn.addEventListener('click', close);
+    if (backdrop) backdrop.addEventListener('click', close);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submit();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (active && e.key === 'Escape') close();
+    });
+
+    return { open: open, close: close };
+  }
+
   function initEditMode() {
     const btn = document.getElementById('edit-btn');
+    const pinModal = initPinModal(enterEditMode);
+
+    function enterEditMode() {
+      if (document.body.classList.contains('edit-mode')) return;
+      document.body.classList.add('edit-mode');
+      btn.classList.add('active');
+      btn.textContent = 'Сохранить';
+      enableEditing();
+    }
 
     btn.addEventListener('click', () => {
-      const entering = document.body.classList.toggle('edit-mode');
-      btn.classList.toggle('active', entering);
-      btn.textContent = entering ? 'Сохранить' : 'Редактировать';
-
-      if (entering) {
-        enableEditing();
-      } else {
-        saveEdits();
-        disableEditing();
-        startTyping();
+      if (!document.body.classList.contains('edit-mode')) {
+        // Вход в режим редактирования — только для владельца
+        if (isOwnerSession()) {
+          enterEditMode();
+        } else {
+          pinModal.open();
+        }
+        return;
       }
+
+      // Выход (кнопка в состоянии «Сохранить»): PIN уже введён в этой сессии
+      document.body.classList.remove('edit-mode');
+      btn.classList.remove('active');
+      btn.textContent = 'Редактировать';
+      saveEdits();
+      disableEditing();
+      startTyping();
     });
   }
 

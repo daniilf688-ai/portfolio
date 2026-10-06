@@ -255,13 +255,30 @@
   <footer class="footer">
     <div class="container">
       <p>© 2026 <span id="footer-name">Даниил Борисович</span>. Все права защищены.</p>
-      <p class="footer-note">Сделано с ❤️ · Можно редактировать прямо в браузере</p>
+      <p class="footer-note">Сделано с ❤️ · Редактирование сайта — по PIN владельца</p>
     </div>
   </footer>
 
   <!-- Edit hint -->
   <div class="edit-hint" id="edit-hint">
     Режим редактирования: кликайте на текст и меняйте, у проектов — «Заменить фото». Нажмите «Сохранить».
+  </div>
+
+  <!-- Owner PIN modal: режим редактирования доступен только владельцу -->
+  <div class="pin-modal" id="pin-modal" role="dialog" aria-modal="true" aria-labelledby="pin-title" hidden>
+    <div class="pin-modal__backdrop" data-pin-close></div>
+    <div class="pin-modal__card">
+      <div class="pin-modal__icon" aria-hidden="true">🔐</div>
+      <h2 id="pin-title">Вход для владельца</h2>
+      <p class="pin-modal__hint">Введите PIN, чтобы войти в режим редактирования</p>
+      <input class="pin-modal__input" id="pin-input" type="password" inputmode="numeric"
+             autocomplete="off" maxlength="12" placeholder="••••" aria-label="PIN-код">
+      <p class="pin-modal__error" id="pin-error" role="alert" hidden>Неверный PIN-код</p>
+      <div class="pin-modal__actions">
+        <button type="button" class="btn btn-primary" id="pin-submit">Войти</button>
+        <button type="button" class="btn btn-secondary" id="pin-close">Отмена</button>
+      </div>
+    </div>
   </div>
 
   <script src="js/data.js" defer></script>

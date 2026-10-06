@@ -119,3 +119,115 @@
 .mobile-nav a:hover {
   transform: perspective(600px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg)) translateX(6px);
 }
+
+/* PIN-модалка владельца */
+body.pin-open {
+  overflow: hidden;
+}
+
+.pin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pin-modal[hidden] {
+  display: none;
+}
+
+.pin-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.pin-modal__card {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.35),
+    0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: pin-pop 0.25s ease;
+}
+
+@keyframes pin-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+}
+
+.pin-modal__icon {
+  font-size: 2rem;
+  margin-bottom: 6px;
+}
+
+.pin-modal__card h2 {
+  font-size: 1.25rem;
+  margin-bottom: 6px;
+}
+
+.pin-modal__hint {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.pin-modal__input {
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 1.15rem;
+  font-family: inherit;
+  letter-spacing: 0.35em;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.pin-modal__input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.pin-modal__error {
+  color: #ff5c7a;
+  font-size: 0.87rem;
+  margin-bottom: 10px;
+}
+
+.pin-modal__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.pin-modal__actions .btn {
+  flex: 1;
+  justify-content: center;
+  padding: 12px 16px;
+}
+
+.pin-shake {
+  animation: pin-shake 0.35s ease;
+}
+
+@keyframes pin-shake {
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
