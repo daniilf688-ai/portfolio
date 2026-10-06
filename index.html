@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Даниил Борисович — Портфолио</title>
+  <meta name="description" content="Портфолио Frontend-разработчика и UI/UX дизайнера Даниила Борисовича">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" class="logo">
+        <span id="logo-name">Даниил</span>
+      </a>
+
+      <nav class="nav">
+        <a href="#about">Обо мне</a>
+        <a href="#skills">Навыки</a>
+        <a href="#experience">Опыт</a>
+        <a href="#projects">Проекты</a>
+        <a href="#contact">Контакты</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Theme switcher -->
+        <button class="theme-btn" data-set-theme="dark" title="Тёмная тема">🌑</button>
+        <button class="theme-btn" data-set-theme="light" title="Светлая тема">☀️</button>
+        <button class="theme-btn" data-set-theme="vibrant" title="Яркая тема">💜</button>
+
+        <button class="edit-btn" id="edit-btn">Редактировать</button>
+
+        <button class="burger" id="burger" aria-label="Меню">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile nav -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="#about">Обо мне</a>
+    <a href="#skills">Навыки</a>
+    <a href="#experience">Опыт</a>
+    <a href="#projects">Проекты</a>
+    <a href="#contact">Контакты</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">Доступен для новых проектов</div>
+        <h1>Привет, я <span id="hero-name">Даниил Борисович</span></h1>
+        <p class="hero-title">
+          <span id="typed-text"></span><span class="typed-cursor">|</span>
+        </p>
+        <p class="hero-subtitle" id="hero-subtitle">Создаю современные и удобные цифровые продукты</p>
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary">Смотреть проекты</a>
+          <a href="#contact" class="btn btn-secondary">Связаться</a>
+        </div>
+
+        <!-- Parallax layers -->
+        <div class="parallax-layer layer-1" data-speed="0.3"></div>
+        <div class="parallax-layer layer-2" data-speed="0.15"></div>
+        <div class="parallax-layer layer-3" data-speed="0.08"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title">Обо мне</h2>
+      <p class="section-subtitle">Немного информации о моём пути и подходе к работе</p>
+
+      <div class="about-grid">
+        <div class="about-text">
+          <p id="about-text">Привет! Я Даниил Борисович — frontend-разработчик и UI/UX дизайнер с более чем 6-летним опытом.</p>
+        </div>
+
+        <div class="about-info">
+          <div class="info-item">
+            <div class="icon">📧</div>
+            <div>
+              <div class="label">Email</div>
+              <div class="value" id="info-email">daniil.borisovich@example.com</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="icon">📱</div>
+            <div>
+              <div class="label">Телефон</div>
+              <div class="value" id="info-phone">+7 (999) 123-45-67</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="icon">📍</div>
+            <div>
+              <div class="label">Локация</div>
+              <div class="value" id="info-location">Москва, Россия</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="icon">✈️</div>
+            <div>
+              <div class="label">Telegram</div>
+              <div class="value" id="info-telegram">@daniil_dev</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="section-title">Навыки</h2>
+      <p class="section-subtitle">Технологии и инструменты, которыми я владею</p>
+      <div class="skills-grid" id="skills-grid">
+        <!-- Рендерится из data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="container">
+      <h2 class="section-title">Опыт и достижения</h2>
+      <p class="section-subtitle">Места работы и ключевые результаты</p>
+      <div class="timeline" id="experience-list">
+        <!-- Рендерится из data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS / GALLERY -->
+  <section id="projects">
+    <div class="container">
+      <h2 class="section-title">Проекты</h2>
+      <p class="section-subtitle">Избранные работы из моего портфолио</p>
+      <div class="projects-grid" id="projects-grid">
+        <!-- Рендерится из data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Контакты</h2>
+      <p class="section-subtitle">Готов обсудить ваш проект или предложение</p>
+
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="icon">📧</div>
+            <div>
+              <div class="label">Email</div>
+              <div class="value" id="contact-email">daniil.borisovich@example.com</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="icon">📱</div>
+            <div>
+              <div class="label">Телефон</div>
+              <div class="value" id="contact-phone">+7 (999) 123-45-67</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="icon">📍</div>
+            <div>
+              <div class="label">Локация</div>
+              <div class="value" id="contact-location">Москва, Россия</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="icon">✈️</div>
+            <div>
+              <div class="label">Telegram</div>
+              <div class="value" id="contact-telegram">@daniil_dev</div>
+            </div>
+          </div>
+        </div>
+
+        <form class="contact-form" id="contact-form">
+          <div class="form-group">
+            <label for="name">Ваше имя</label>
+            <input type="text" id="name" name="name" required placeholder="Как к вам обращаться?">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="your@email.com">
+          </div>
+          <div class="form-group">
+            <label for="message">Сообщение</label>
+            <textarea id="message" name="message" required placeholder="Расскажите о вашем проекте..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%">Отправить сообщение</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 <span id="footer-name">Даниил Борисович</span>. Все права защищены.</p>
+      <p style="margin-top:8px;font-size:0.8rem">Сделано с ❤️ · Можно редактировать прямо в браузере</p>
+    </div>
+  </footer>
+
+  <!-- Edit hint -->
+  <div class="edit-hint" id="edit-hint">
+    Режим редактирования: кликайте на текст и меняйте. Нажмите «Сохранить».
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
