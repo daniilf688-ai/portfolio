@@ -2,445 +2,538 @@
 // APP LOGIC
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Load saved data from localStorage if exists
-  const saved = localStorage.getItem('portfolioData');
-  if (saved) {
+(function () {
+  'use strict';
+
+  // ---------- HELPERS ----------
+  const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ESCAPES[ch]);
+  const qs = (selector, root) => (root || document).querySelector(selector);
+  const qsa = (selector, root) => Array.prototype.slice.call((root || document).querySelectorAll(selector));
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const NAV_SCROLL_OFFSET = 100;
+  const ANCHOR_SCROLL_OFFSET = 80;
+
+  // ---------- DATA ----------
+  function loadData() {
     try {
-      Object.assign(portfolioData, JSON.parse(saved));
+      const saved = localStorage.getItem('portfolioData');
+      if (saved) Object.assign(portfolioData, JSON.parse(saved));
     } catch (e) {
-      console.warn('Could not load saved data');
+      console.warn('Could not load saved data', e);
     }
   }
 
-  renderAll();
-  initTheme();
-  initNav();
-  initEditMode();
-  initContactForm();
-  initMobileMenu();
-  initScrollAnimations();
-  initHeaderScroll();
-  initSmoothAnchors();
-  initTypingEffect();
-  initParallax();
-});
+  function saveData() {
+    try {
+      localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+    } catch (e) {
+      console.warn('Could not save data', e);
+    }
+  }
 
-function renderAll() {
-  renderHero();
-  renderAbout();
-  renderSkills();
-  renderExperience();
-  renderProjects();
-  renderContact();
-}
+  function init() {
+    loadData();
+    renderAll();
+    initTheme();
+    initEditMode();
+    initContactForm();
+    initMobileMenu();
+    initScrollAnimations();
+    initScrollUpdates();
+    initSmoothAnchors();
+    initParallax();
+    startTyping();
+  }
 
-// ---------- HERO ----------
-function renderHero() {
-  const p = portfolioData.personal;
-  document.getElementById('hero-name').textContent = p.name;
-  document.getElementById('hero-subtitle').textContent = p.subtitle;
-  document.getElementById('logo-name').textContent = p.name.split(' ')[0];
-  // Title is handled by typing effect
-}
+  // ---------- RENDER ----------
+  function renderAll() {
+    renderHero();
+    renderAbout();
+    renderSkills();
+    renderExperience();
+    renderProjects();
+    renderContact();
+  }
 
-// ---------- ABOUT ----------
-function renderAbout() {
-  const p = portfolioData.personal;
-  document.getElementById('about-text').textContent = p.about;
-  document.getElementById('info-email').textContent = p.email;
-  document.getElementById('info-phone').textContent = p.phone;
-  document.getElementById('info-location').textContent = p.location;
-  document.getElementById('info-telegram').textContent = p.telegram;
-}
+  // ---------- HERO ----------
+  function renderHero() {
+    const p = portfolioData.personal;
+    document.getElementById('hero-name').textContent = p.name;
+    document.getElementById('hero-subtitle').textContent = p.subtitle;
+    document.getElementById('logo-name').textContent = p.name.split(' ')[0] || p.name;
+    // Title itself is rendered by the typing effect
+  }
 
-// ---------- SKILLS ----------
-function renderSkills() {
-  const container = document.getElementById('skills-grid');
-  container.classList.add('stagger');
-  container.innerHTML = portfolioData.skills.map(skill => `
-    <div class="skill-card reveal-scale">
-      <div class="skill-header">
-        <span class="skill-name">${skill.name}</span>
-        <span class="skill-level">${skill.level}%</span>
-      </div>
-      <div class="skill-bar">
-        <div class="skill-progress" style="--target-width: ${skill.level}%"></div>
-      </div>
-      <div class="skill-category">${skill.category}</div>
-    </div>
-  `).join('');
-}
+  // ---------- ABOUT ----------
+  function renderAbout() {
+    const p = portfolioData.personal;
+    document.getElementById('about-text').textContent = p.about;
+    document.getElementById('info-email').textContent = p.email;
+    document.getElementById('info-phone').textContent = p.phone;
+    document.getElementById('info-location').textContent = p.location;
+    document.getElementById('info-telegram').textContent = p.telegram;
+  }
 
-// ---------- EXPERIENCE ----------
-function renderExperience() {
-  const container = document.getElementById('experience-list');
-  container.innerHTML = portfolioData.experience.map((exp, i) => `
-    <div class="exp-card reveal" style="transition-delay: ${i * 0.12}s">
-      <div class="exp-header">
-        <div class="exp-company">${exp.company}</div>
-        <div class="exp-period">${exp.period}</div>
-      </div>
-      <div class="exp-position">${exp.position}</div>
-      <p class="exp-desc">${exp.description}</p>
-      <ul class="exp-achievements">
-        ${exp.achievements.map(a => `<li>${a}</li>`).join('')}
-      </ul>
-    </div>
-  `).join('');
-}
-
-// ---------- PROJECTS ----------
-function renderProjects() {
-  const container = document.getElementById('projects-grid');
-  container.classList.add('stagger');
-  container.innerHTML = portfolioData.projects.map(proj => `
-    <article class="project-card reveal-scale">
-      <div class="project-image">
-        <img src="${proj.image}" alt="${proj.title}" loading="lazy">
-      </div>
-      <div class="project-body">
-        <h3 class="project-title">${proj.title}</h3>
-        <p class="project-desc">${proj.description}</p>
-        <div class="project-tags">
-          ${proj.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+  // ---------- SKILLS ----------
+  function renderSkills() {
+    const container = document.getElementById('skills-grid');
+    container.innerHTML = portfolioData.skills.map((skill) => {
+      const level = Math.min(100, Math.max(0, Number(skill.level) || 0));
+      return `
+        <div class="skill-card reveal-scale">
+          <div class="skill-header">
+            <span class="skill-name">${esc(skill.name)}</span>
+            <span class="skill-level">${level}%</span>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-progress" style="--target-width: ${level}%"></div>
+          </div>
+          <div class="skill-category">${esc(skill.category)}</div>
         </div>
-      </div>
-    </article>
-  `).join('');
-}
-
-// ---------- CONTACT ----------
-function renderContact() {
-  const p = portfolioData.personal;
-  document.getElementById('contact-email').textContent = p.email;
-  document.getElementById('contact-phone').textContent = p.phone;
-  document.getElementById('contact-location').textContent = p.location;
-  document.getElementById('contact-telegram').textContent = p.telegram;
-}
-
-// ---------- THEME ----------
-function initTheme() {
-  const savedTheme = localStorage.getItem('portfolioTheme') || 'dark';
-  setTheme(savedTheme);
-
-  document.querySelectorAll('[data-set-theme]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const theme = btn.dataset.setTheme;
-      setTheme(theme);
-      localStorage.setItem('portfolioTheme', theme);
-    });
-  });
-}
-
-function setTheme(theme) {
-  if (theme === 'dark') {
-    document.documentElement.removeAttribute('data-theme');
-  } else {
-    document.documentElement.setAttribute('data-theme', theme);
+      `;
+    }).join('');
   }
 
-  // Update active state of buttons
-  document.querySelectorAll('[data-set-theme]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.setTheme === theme || (theme === 'dark' && btn.dataset.setTheme === 'dark'));
-  });
-}
+  // ---------- EXPERIENCE ----------
+  function renderExperience() {
+    const container = document.getElementById('experience-list');
+    container.innerHTML = portfolioData.experience.map((exp) => `
+      <div class="exp-card reveal">
+        <div class="exp-header">
+          <div class="exp-company">${esc(exp.company)}</div>
+          <div class="exp-period">${esc(exp.period)}</div>
+        </div>
+        <div class="exp-position">${esc(exp.position)}</div>
+        <p class="exp-desc">${esc(exp.description)}</p>
+        <ul class="exp-achievements">
+          ${exp.achievements.map((a) => `<li>${esc(a)}</li>`).join('')}
+        </ul>
+      </div>
+    `).join('');
+  }
 
-// ---------- NAV HIGHLIGHT ----------
-function initNav() {
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav a, .mobile-nav a');
+  // ---------- PROJECTS ----------
+  function renderProjects() {
+    const container = document.getElementById('projects-grid');
+    container.innerHTML = portfolioData.projects.map((proj) => `
+      <article class="project-card reveal-scale">
+        <div class="project-image">
+          <img src="${esc(proj.image)}" alt="${esc(proj.title)}" width="600" height="400" loading="lazy" decoding="async">
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">${esc(proj.title)}</h3>
+          <p class="project-desc">${esc(proj.description)}</p>
+          <div class="project-tags">
+            ${proj.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}
+          </div>
+        </div>
+      </article>
+    `).join('');
+  }
 
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-      const top = section.offsetTop - 100;
-      if (scrollY >= top) current = section.getAttribute('id');
+  // ---------- CONTACT ----------
+  function renderContact() {
+    const p = portfolioData.personal;
+    document.getElementById('contact-email').textContent = p.email;
+    document.getElementById('contact-phone').textContent = p.phone;
+    document.getElementById('contact-location').textContent = p.location;
+    document.getElementById('contact-telegram').textContent = p.telegram;
+  }
+
+  // ---------- THEME ----------
+  let themeButtons = [];
+
+  function initTheme() {
+    themeButtons = qsa('[data-set-theme]');
+
+    let saved = 'dark';
+    try {
+      saved = localStorage.getItem('portfolioTheme') || 'dark';
+    } catch (e) { /* storage unavailable */ }
+    setTheme(saved);
+
+    themeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setTheme(btn.dataset.setTheme);
+        try {
+          localStorage.setItem('portfolioTheme', btn.dataset.setTheme);
+        } catch (e) { /* storage unavailable */ }
+      });
     });
+  }
 
-    navLinks.forEach(link => {
-      link.classList.toggle('active', link.getAttribute('href') === `#${current}`);
-    });
-  });
-}
-
-// ---------- EDIT MODE ----------
-function initEditMode() {
-  const btn = document.getElementById('edit-btn');
-  const hint = document.getElementById('edit-hint');
-
-  btn.addEventListener('click', () => {
-    const isEdit = document.body.classList.toggle('edit-mode');
-    btn.classList.toggle('active', isEdit);
-    btn.textContent = isEdit ? 'Сохранить' : 'Редактировать';
-
-    if (isEdit) {
-      enableEditing();
+  function setTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
     } else {
-      saveEdits();
-      disableEditing();
+      document.documentElement.setAttribute('data-theme', theme);
     }
-  });
-}
+    themeButtons.forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.setTheme === theme);
+    });
 
-function enableEditing() {
-  // Make personal info editable
-  const editables = [
-    'hero-name', 'hero-title', 'hero-subtitle',
-    'about-text', 'info-email', 'info-phone', 'info-location', 'info-telegram',
-    'contact-email', 'contact-phone', 'contact-location', 'contact-telegram'
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      const colors = { dark: '#0f0f12', light: '#f8f9fc', vibrant: '#0d0b1a' };
+      themeColorMeta.setAttribute('content', colors[theme] || colors.dark);
+    }
+  }
+
+  // ---------- SCROLL STATE (header + nav + parallax in one rAF loop) ----------
+  let headerEl = null;
+  let navLinks = [];
+  let sections = [];
+  let sectionTops = [];
+  let currentSectionId = null;
+  let scrollFrameRequested = false;
+
+  let layers = [];
+  let mouseX = 0;
+  let mouseY = 0;
+
+  function measureSections() {
+    sectionTops = sections.map((section) => ({
+      id: section.id,
+      top: section.getBoundingClientRect().top + window.scrollY
+    }));
+  }
+
+  function updateActiveNav(scrollY) {
+    let current = '';
+    for (let i = 0; i < sectionTops.length; i++) {
+      if (scrollY >= sectionTops[i].top - NAV_SCROLL_OFFSET) current = sectionTops[i].id;
+    }
+    if (current === currentSectionId) return;
+    currentSectionId = current;
+
+    const hash = '#' + current;
+    navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === hash));
+  }
+
+  function updateParallax(scrollY) {
+    if (!layers.length || reducedMotion.matches || scrollY > window.innerHeight) return;
+    layers.forEach((layer) => {
+      const speed = parseFloat(layer.dataset.speed) || 0.1;
+      const x = mouseX * 60 * speed;
+      const y = mouseY * 40 * speed + scrollY * speed * 0.5;
+      layer.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  }
+
+  function applyScrollState() {
+    scrollFrameRequested = false;
+    const scrollY = window.scrollY;
+    headerEl.classList.toggle('scrolled', scrollY > 40);
+    updateActiveNav(scrollY);
+    updateParallax(scrollY);
+  }
+
+  function scheduleScrollState() {
+    if (scrollFrameRequested) return;
+    scrollFrameRequested = true;
+    requestAnimationFrame(applyScrollState);
+  }
+
+  function initScrollUpdates() {
+    headerEl = qs('.header');
+    navLinks = qsa('.nav a, .mobile-nav a');
+    sections = qsa('section[id]');
+    layers = qsa('.parallax-layer');
+    measureSections();
+
+    window.addEventListener('scroll', scheduleScrollState, { passive: true });
+
+    // Layout can shift after load (webfonts) or on resize — keep section offsets fresh
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        measureSections();
+        scheduleScrollState();
+      }, 150);
+    });
+    window.addEventListener('load', () => {
+      measureSections();
+      scheduleScrollState();
+    });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        measureSections();
+        scheduleScrollState();
+      });
+    }
+
+    scheduleScrollState();
+  }
+
+  // ---------- PARALLAX (mouse) ----------
+  function initParallax() {
+    const hero = qs('.hero');
+    if (!hero || !layers.length || reducedMotion.matches) return;
+
+    hero.addEventListener('mousemove', (event) => {
+      const rect = hero.getBoundingClientRect();
+      mouseX = (event.clientX - rect.left) / rect.width - 0.5;
+      mouseY = (event.clientY - rect.top) / rect.height - 0.5;
+      scheduleScrollState();
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      mouseX = 0;
+      mouseY = 0;
+      layers.forEach((layer) => {
+        layer.style.transition = 'transform 0.6s ease';
+      });
+      scheduleScrollState();
+      setTimeout(() => {
+        layers.forEach((layer) => {
+          layer.style.transition = '';
+        });
+      }, 600);
+    });
+  }
+
+  // ---------- NAV HIGHLIGHT + ANCHOR SCROLL (event delegation) ----------
+  function initSmoothAnchors() {
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      const link = target && target.closest ? target.closest('a[href^="#"]') : null;
+      if (!link) return;
+
+      const id = link.getAttribute('href');
+      if (!id || id === '#') return;
+
+      let section = null;
+      try {
+        section = document.querySelector(id);
+      } catch (e) {
+        return; // malformed selector — let the browser handle it
+      }
+      if (!section) return;
+
+      event.preventDefault();
+      const top = section.getBoundingClientRect().top + window.scrollY - ANCHOR_SCROLL_OFFSET;
+      window.scrollTo({ top, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+      closeMobileMenu();
+    });
+  }
+
+  // ---------- EDIT MODE ----------
+  const EDITABLE_IDS = [
+    'hero-name', 'hero-subtitle', 'about-text',
+    'info-email', 'info-phone', 'info-location', 'info-telegram',
+    'contact-email', 'contact-phone', 'contact-location', 'contact-telegram',
+    'typed-text'
   ];
 
-  editables.forEach(id => {
+  function initEditMode() {
+    const btn = document.getElementById('edit-btn');
+
+    btn.addEventListener('click', () => {
+      const entering = document.body.classList.toggle('edit-mode');
+      btn.classList.toggle('active', entering);
+      btn.textContent = entering ? 'Сохранить' : 'Редактировать';
+
+      if (entering) {
+        enableEditing();
+      } else {
+        saveEdits();
+        disableEditing();
+        startTyping();
+      }
+    });
+  }
+
+  function enableEditing() {
+    stopTyping();
+
+    // Show the full title so it can be edited as plain text
+    const typed = document.getElementById('typed-text');
+    if (typed) typed.textContent = portfolioData.personal.title;
+
+    EDITABLE_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.contentEditable = 'true';
+    });
+  }
+
+  function disableEditing() {
+    qsa('[contenteditable]').forEach((el) => {
+      el.contentEditable = 'false';
+    });
+  }
+
+  function readText(id) {
     const el = document.getElementById(id);
-    if (el) {
-      el.contentEditable = true;
-      el.dataset.original = el.textContent;
-    }
-  });
-}
+    return el ? el.textContent.trim() : '';
+  }
 
-function disableEditing() {
-  document.querySelectorAll('[contenteditable="true"]').forEach(el => {
-    el.contentEditable = false;
-  });
-}
+  // The same value is shown in two blocks (About + Contacts); accept the edit
+  // from whichever block the visitor actually changed.
+  function readField(primaryId, secondaryId, current) {
+    const primary = readText(primaryId);
+    const secondary = secondaryId ? readText(secondaryId) : '';
+    if (primary && primary !== current) return primary;
+    if (secondary && secondary !== current) return secondary;
+    return primary || current;
+  }
 
-function saveEdits() {
-  const p = portfolioData.personal;
-  p.name = document.getElementById('hero-name').textContent.trim();
-  p.title = document.getElementById('hero-title').textContent.trim();
-  p.subtitle = document.getElementById('hero-subtitle').textContent.trim();
-  p.about = document.getElementById('about-text').textContent.trim();
-  p.email = document.getElementById('info-email').textContent.trim();
-  p.phone = document.getElementById('info-phone').textContent.trim();
-  p.location = document.getElementById('info-location').textContent.trim();
-  p.telegram = document.getElementById('info-telegram').textContent.trim();
+  function saveEdits() {
+    const p = portfolioData.personal;
 
-  // Update logo
-  document.getElementById('logo-name').textContent = p.name.split(' ')[0];
+    p.name = readText('hero-name') || p.name;
+    p.title = readText('typed-text') || p.title;
+    p.subtitle = readText('hero-subtitle') || p.subtitle;
+    p.about = readText('about-text') || p.about;
+    p.email = readField('info-email', 'contact-email', p.email);
+    p.phone = readField('info-phone', 'contact-phone', p.phone);
+    p.location = readField('info-location', 'contact-location', p.location);
+    p.telegram = readField('info-telegram', 'contact-telegram', p.telegram);
 
-  // Save to localStorage
-  localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+    saveData();
+    renderHero();
+    renderAbout();
+    renderContact();
+    measureSections();
+    showToast('Изменения сохранены!');
+  }
 
-  // Show toast
-  showToast('Изменения сохранены!');
-}
+  function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'edit-hint toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  }
 
-function showToast(msg) {
-  const toast = document.createElement('div');
-  toast.className = 'edit-hint';
-  toast.style.display = 'block';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2500);
-}
+  // ---------- CONTACT FORM ----------
+  function initContactForm() {
+    const form = document.getElementById('contact-form');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = form.elements.name ? form.elements.name.value : '';
+      showToast(`Спасибо, ${name}! Сообщение отправлено (демо).`);
+      form.reset();
+    });
+  }
 
-// ---------- CONTACT FORM ----------
-function initContactForm() {
-  const form = document.getElementById('contact-form');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = form.querySelector('[name="name"]').value;
-    showToast(`Спасибо, ${name}! Сообщение отправлено (демо).`);
-    form.reset();
-  });
-}
+  // ---------- MOBILE MENU ----------
+  function closeMobileMenu() {
+    const mobileNav = document.getElementById('mobile-nav');
+    if (mobileNav) mobileNav.classList.remove('open');
+  }
 
-// ---------- MOBILE MENU ----------
-function initMobileMenu() {
-  const burger = document.getElementById('burger');
-  const mobileNav = document.getElementById('mobile-nav');
+  function initMobileMenu() {
+    const burger = document.getElementById('burger');
+    const mobileNav = document.getElementById('mobile-nav');
 
-  burger.addEventListener('click', () => {
-    mobileNav.classList.toggle('open');
-  });
+    burger.addEventListener('click', () => {
+      mobileNav.classList.toggle('open');
+    });
+    // Links are handled by the delegated anchor handler, which closes the menu
+  }
 
-  mobileNav.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => mobileNav.classList.remove('open'));
-  });
-}
-
-// ---------- SCROLL ANIMATIONS ----------
-function initScrollAnimations() {
-  const observerOptions = {
-    threshold: 0.08,
-    rootMargin: '0px 0px -60px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
+  // ---------- SCROLL ANIMATIONS ----------
+  function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
         entry.target.classList.add('visible');
         observer.unobserve(entry.target);
-      }
+      });
+    }, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -60px 0px'
     });
-  }, observerOptions);
 
-  // Helper to observe elements
-  function observe(selector, className = 'reveal', stagger = 0) {
-    document.querySelectorAll(selector).forEach((el, i) => {
-      el.classList.add(className);
-      if (stagger > 0) {
-        el.style.transitionDelay = `${i * stagger}s`;
-      }
-      observer.observe(el);
-    });
+    // className is omitted for elements that already carry their reveal class
+    // in the render template; stagger sets the --stagger entrance delay.
+    function observe(selector, className, stagger) {
+      qsa(selector).forEach((el, i) => {
+        if (className) el.classList.add(className);
+        if (stagger) el.style.setProperty('--stagger', `${i * stagger}s`);
+        observer.observe(el);
+      });
+    }
+
+    observe('.section-title', 'reveal');
+    observe('.section-subtitle', 'reveal');
+    observe('.about-text', 'reveal-left');
+    observe('.info-item', 'reveal-right', 0.1);
+    observe('.skill-card', null, 0.05);
+    observe('.exp-card', null, 0.12);
+    observe('.project-card', null, 0.05);
+    observe('.contact-info .contact-item', 'reveal-left', 0.1);
+    observe('.contact-form', 'reveal-right');
   }
 
-  // Section titles & subtitles
-  observe('.section-title', 'reveal');
-  observe('.section-subtitle', 'reveal');
+  // ---------- TYPING EFFECT ----------
+  let typingTimer = null;
 
-  // About
-  observe('.about-text', 'reveal-left');
-  observe('.info-item', 'reveal-right', 0.1);
-
-  // Skills (already have reveal-scale from render)
-  document.querySelectorAll('.skill-card').forEach(el => observer.observe(el));
-
-  // Experience (already have reveal from render)
-  document.querySelectorAll('.exp-card').forEach(el => observer.observe(el));
-
-  // Projects (already have reveal-scale from render)
-  document.querySelectorAll('.project-card').forEach(el => observer.observe(el));
-
-  // Contact
-  observe('.contact-info .contact-item', 'reveal-left', 0.1);
-  observe('.contact-form', 'reveal-right');
-}
-
-// ---------- HEADER SCROLL EFFECT ----------
-function initHeaderScroll() {
-  const header = document.querySelector('.header');
-  let lastScroll = 0;
-
-  window.addEventListener('scroll', () => {
-    const current = window.scrollY;
-    if (current > 40) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
+  function stopTyping() {
+    if (typingTimer) {
+      clearTimeout(typingTimer);
+      typingTimer = null;
     }
-    lastScroll = current;
-  }, { passive: true });
-}
+  }
 
-// ---------- SMOOTH ANCHOR SCROLL ----------
-function initSmoothAnchors() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', (e) => {
-      const targetId = anchor.getAttribute('href');
-      if (targetId === '#') return;
-      const target = document.querySelector(targetId);
-      if (target) {
-        e.preventDefault();
-        const offset = 80;
-        const top = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
+  function startTyping() {
+    const el = document.getElementById('typed-text');
+    if (!el) return;
+
+    stopTyping();
+
+    const phrases = [
+      portfolioData.personal.title,
+      'Создаю красивые интерфейсы',
+      'Пишу чистый и быстрый код',
+      'Frontend + UI/UX'
+    ];
+
+    if (reducedMotion.matches) {
+      el.textContent = phrases[0];
+      return;
+    }
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    function type() {
+      const current = phrases[phraseIndex];
+
+      if (isDeleting) {
+        charIndex -= 1;
+        el.textContent = current.slice(0, charIndex);
+      } else {
+        charIndex += 1;
+        el.textContent = current.slice(0, charIndex);
       }
-    });
-  });
-}
 
-// ---------- TYPING EFFECT ----------
-function initTypingEffect() {
-  const el = document.getElementById('typed-text');
-  if (!el) return;
+      let delay = isDeleting ? 35 : 70;
 
-  const phrases = [
-    portfolioData.personal.title,
-    'Создаю красивые интерфейсы',
-    'Пишу чистый и быстрый код',
-    'Frontend + UI/UX'
-  ];
+      if (!isDeleting && charIndex === current.length) {
+        delay = 2000; // pause at the end of the phrase
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        delay = 400;
+      }
 
-  let phraseIndex = 0;
-  let charIndex = 0;
-  let isDeleting = false;
-  let typingSpeed = 70;
-
-  function type() {
-    const current = phrases[phraseIndex];
-
-    if (isDeleting) {
-      el.textContent = current.substring(0, charIndex - 1);
-      charIndex--;
-      typingSpeed = 35;
-    } else {
-      el.textContent = current.substring(0, charIndex + 1);
-      charIndex++;
-      typingSpeed = 70;
+      typingTimer = setTimeout(type, delay);
     }
 
-    if (!isDeleting && charIndex === current.length) {
-      // Pause at the end
-      typingSpeed = 2000;
-      isDeleting = true;
-    } else if (isDeleting && charIndex === 0) {
-      isDeleting = false;
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-      typingSpeed = 400;
-    }
-
-    setTimeout(type, typingSpeed);
+    // Start after a short delay so hero animations can play
+    typingTimer = setTimeout(type, 900);
   }
 
-  // Start after a short delay so hero animations can play
-  setTimeout(type, 900);
-}
-
-// ---------- PARALLAX ----------
-function initParallax() {
-  const layers = document.querySelectorAll('.parallax-layer');
-  if (!layers.length) return;
-
-  // Mouse move parallax on hero
-  const hero = document.querySelector('.hero');
-  if (hero) {
-    hero.addEventListener('mousemove', (e) => {
-      const rect = hero.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-
-      layers.forEach(layer => {
-        const speed = parseFloat(layer.dataset.speed) || 0.1;
-        const moveX = x * 60 * speed;
-        const moveY = y * 40 * speed;
-        layer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-      });
-    });
-
-    // Reset on mouse leave
-    hero.addEventListener('mouseleave', () => {
-      layers.forEach(layer => {
-        layer.style.transition = 'transform 0.6s ease';
-        layer.style.transform = 'translate(0, 0)';
-        setTimeout(() => {
-          layer.style.transition = '';
-        }, 600);
-      });
-    });
+  // ---------- BOOT ----------
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
-
-  // Scroll parallax for layers
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        const scrollY = window.scrollY;
-        layers.forEach(layer => {
-          const speed = parseFloat(layer.dataset.speed) || 0.1;
-          // Only apply scroll parallax while hero is somewhat visible
-          if (scrollY < window.innerHeight) {
-            const offset = scrollY * speed * 0.5;
-            // Combine with existing mouse transform if any — simple override for scroll
-            layer.style.transform = `translateY(${offset}px)`;
-          }
-        });
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }, { passive: true });
-}
+})();

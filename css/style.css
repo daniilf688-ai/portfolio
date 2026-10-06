@@ -10,9 +10,11 @@
   --bg-card-hover: #2a2a35;
   --text-primary: #f0f0f5;
   --text-secondary: #a0a0b0;
-  --text-muted: #6b6b7b;
+  --text-muted: #8f8fa3;
   --accent: #6c5ce7;
   --accent-hover: #5a4bd1;
+  --accent-text: #a99cf7; /* AA-compliant accent for small text */
+  --on-accent: #ffffff; /* text on accent-filled surfaces */
   --accent-soft: rgba(108, 92, 231, 0.15);
   --border: #2e2e3a;
   --success: #00b894;
@@ -21,6 +23,7 @@
   --radius-sm: 10px;
   --font: 'Inter', system-ui, -apple-system, sans-serif;
   --transition: 0.25s ease;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Theme: Light Clean */
@@ -31,9 +34,11 @@
   --bg-card-hover: #f0f2f8;
   --text-primary: #1a1a2e;
   --text-secondary: #4a4a6a;
-  --text-muted: #8a8aa0;
+  --text-muted: #6b6b85;
   --accent: #5b4cdb;
   --accent-hover: #4a3cc7;
+  --accent-text: #4a3cc7;
+  --on-accent: #ffffff;
   --accent-soft: rgba(91, 76, 219, 0.12);
   --border: #e5e7f0;
   --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
@@ -47,9 +52,11 @@
   --bg-card-hover: #2a2348;
   --text-primary: #f5f0ff;
   --text-secondary: #c4b5e0;
-  --text-muted: #8b7aad;
+  --text-muted: #9a8bc0;
   --accent: #ff6b9d;
   --accent-hover: #ff4d88;
+  --accent-text: #ff8fb3;
+  --on-accent: #2a0f1e; /* dark text: white on pink fails AA */
   --accent-soft: rgba(255, 107, 157, 0.15);
   --border: #2e2648;
   --shadow: 0 10px 40px rgba(255, 107, 157, 0.15);
@@ -75,7 +82,7 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
-  transition: background var(--transition), color var(--transition);
+  transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
 }
 
@@ -142,7 +149,6 @@ section {
   background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
-  transition: all var(--transition);
 }
 
 .header-inner {
@@ -170,13 +176,12 @@ section {
 .nav a {
   font-size: 0.95rem;
   color: var(--text-secondary);
-  transition: color var(--transition);
   font-weight: 500;
 }
 
 .nav a:hover,
 .nav a.active {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .header-actions {
@@ -195,13 +200,12 @@ section {
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
-  transition: all var(--transition);
   font-size: 1.1rem;
 }
 
 .theme-btn:hover {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: var(--accent);
 }
 
@@ -209,17 +213,16 @@ section {
   padding: 8px 16px;
   border-radius: 999px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 0.85rem;
   font-weight: 600;
   border: 1px solid transparent;
-  transition: all var(--transition);
 }
 
 .edit-btn:hover,
 .edit-btn.active {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
 }
 
 .burger {
@@ -233,7 +236,6 @@ section {
   height: 2px;
   background: var(--text-primary);
   border-radius: 2px;
-  transition: var(--transition);
 }
 
 /* ============================================
@@ -242,6 +244,7 @@ section {
 
 .hero {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   padding-top: 70px;
@@ -262,7 +265,7 @@ section {
 
 .hero-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 700px;
 }
 
@@ -272,7 +275,7 @@ section {
   gap: 8px;
   padding: 6px 14px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -319,12 +322,11 @@ section {
   border-radius: 999px;
   font-weight: 600;
   font-size: 1rem;
-  transition: all var(--transition);
 }
 
 .btn-primary {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
 }
 
 .btn-primary:hover {
@@ -414,7 +416,6 @@ section {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 22px;
-  transition: all var(--transition);
 }
 
 .skill-card:hover {
@@ -437,7 +438,7 @@ section {
 
 .skill-level {
   font-size: 0.85rem;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -450,9 +451,14 @@ section {
 
 .skill-progress {
   height: 100%;
+  width: 0;
   background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white));
   border-radius: 999px;
-  transition: width 1s ease;
+  transition: width 1.2s var(--ease);
+}
+
+.skill-card.visible .skill-progress {
+  width: var(--target-width);
 }
 
 .skill-category {
@@ -489,7 +495,6 @@ section {
   border-radius: var(--radius);
   padding: 28px;
   margin-bottom: 28px;
-  transition: all var(--transition);
 }
 
 .exp-card:hover {
@@ -507,6 +512,7 @@ section {
   border-radius: 50%;
   background: var(--accent);
   border: 3px solid var(--bg-primary);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .exp-header {
@@ -524,7 +530,7 @@ section {
 
 .exp-period {
   font-size: 0.9rem;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 500;
 }
 
@@ -557,7 +563,7 @@ section {
   content: '✓';
   position: absolute;
   left: 0;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 700;
 }
 
@@ -576,7 +582,6 @@ section {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  transition: all var(--transition);
 }
 
 .project-card:hover {
@@ -628,7 +633,7 @@ section {
 .tag {
   padding: 4px 12px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 500;
@@ -708,7 +713,7 @@ section {
   color: var(--text-primary);
   font-family: inherit;
   font-size: 1rem;
-  transition: border-color var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .form-group input:focus,
@@ -735,7 +740,7 @@ section {
 }
 
 .footer a {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ============================================
@@ -755,7 +760,7 @@ body.edit-mode [contenteditable="true"] {
   left: 50%;
   transform: translateX(-50%);
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   padding: 12px 24px;
   border-radius: 999px;
   font-size: 0.9rem;
@@ -763,10 +768,31 @@ body.edit-mode [contenteditable="true"] {
   z-index: 2000;
   box-shadow: var(--shadow);
   display: none;
+  animation: toastIn 0.4s ease;
+}
+
+.edit-hint.toast {
+  display: block;
 }
 
 body.edit-mode .edit-hint {
   display: block;
+}
+
+/* Keyboard focus */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Full-width submit button inside the contact form */
+.contact-form .btn {
+  width: 100%;
+}
+
+.footer-note {
+  margin-top: 8px;
+  font-size: 0.8rem;
 }
 
 /* ============================================
@@ -810,9 +836,9 @@ body.edit-mode .edit-hint {
   }
 }
 
-/* Mobile menu */
+/* Mobile menu — visibility instead of display so it can animate */
 .mobile-nav {
-  display: none;
+  display: flex;
   position: fixed;
   top: 70px;
   left: 0;
@@ -823,10 +849,19 @@ body.edit-mode .edit-hint {
   flex-direction: column;
   gap: 16px;
   z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
 }
 
 .mobile-nav.open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s;
 }
 
 .mobile-nav a {
@@ -837,7 +872,7 @@ body.edit-mode .edit-hint {
 }
 
 .mobile-nav a:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   transform: translateX(6px);
 }
 
@@ -845,65 +880,39 @@ body.edit-mode .edit-hint {
    ANIMATIONS & INTERACTIVITY
    ============================================ */
 
-/* Scroll reveal base */
-/* ===== BLOCK APPEARANCE ANIMATIONS ===== */
-.reveal {
-  opacity: 0;
-  transform: translateY(50px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* From left */
-.reveal-left {
-  opacity: 0;
-  transform: translateX(-50px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.reveal-left.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* From right */
-.reveal-right {
-  opacity: 0;
-  transform: translateX(50px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.reveal-right.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
-.reveal-delay-4 { transition-delay: 0.4s; }
-.reveal-delay-5 { transition-delay: 0.5s; }
-
-/* Scale reveal for cards */
+/* Scroll reveal — entrance uses individual translate/scale properties so it
+   never conflicts with hover transforms; delays come from --stagger */
+.reveal,
+.reveal-left,
+.reveal-right,
 .reveal-scale {
   opacity: 0;
-  transform: scale(0.9) translateY(40px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
 }
 
+.reveal {
+  translate: 0 50px;
+}
+
+.reveal-left {
+  translate: -50px 0;
+}
+
+.reveal-right {
+  translate: 50px 0;
+}
+
+.reveal-scale {
+  scale: 0.9;
+  translate: 0 40px;
+}
+
+.reveal.visible,
+.reveal-left.visible,
+.reveal-right.visible,
 .reveal-scale.visible {
   opacity: 1;
-  transform: scale(1) translateY(0);
+  translate: 0 0;
+  scale: 1;
 }
 
 /* Hero animations */
@@ -949,9 +958,16 @@ body.edit-mode .edit-hint {
   }
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+/* Toast entrance — animates `translate` so it never overrides centering */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 @keyframes float {
@@ -959,33 +975,7 @@ body.edit-mode .edit-hint {
   50% { transform: translateY(-12px); }
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Skill progress animation */
-.skill-progress {
-  width: 0 !important;
-  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.skill-card.visible .skill-progress {
-  width: var(--target-width) !important;
-}
-
-/* Enhanced card hovers */
-.skill-card,
-.exp-card,
-.project-card,
-.info-item {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.35s ease,
-              background 0.3s ease,
-              border-color 0.3s ease;
-}
-
+/* Enhanced card hovers (transitions are defined in the consolidated block below) */
 .skill-card:hover {
   transform: translateY(-6px);
 }
@@ -1042,27 +1032,35 @@ body.edit-mode .edit-hint {
 /* Theme buttons active state */
 .theme-btn.active {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-/* Smooth theme transition */
-body,
+/* Consolidated transitions for interactive components and reveal elements.
+   Entrance properties (opacity/translate/scale) honour --stagger; hover and
+   theme properties always respond instantly (delay 0). */
 .header,
-.bg-card,
+.theme-btn,
+.edit-btn,
+.btn,
+.nav a,
+.info-item,
 .skill-card,
 .exp-card,
 .project-card,
-.info-item,
 .contact-form,
-.btn,
-.nav a,
-.theme-btn {
-  transition: background-color 0.4s ease,
-              color 0.4s ease,
-              border-color 0.4s ease,
-              box-shadow 0.4s ease;
+.reveal,
+.reveal-left,
+.reveal-right,
+.reveal-scale {
+  transition-property: opacity, translate, scale, transform,
+                       background-color, border-color, color, box-shadow;
+  transition-duration: 0.8s, 0.8s, 0.8s, 0.35s, 0.4s, 0.4s, 0.4s, 0.4s;
+  transition-timing-function: var(--ease), var(--ease), var(--ease),
+                              ease, ease, ease, ease, ease;
+  transition-delay: var(--stagger, 0s), var(--stagger, 0s), var(--stagger, 0s),
+                    0s, 0s, 0s, 0s, 0s;
 }
 
 /* Floating decoration in hero */
@@ -1083,7 +1081,7 @@ body,
 /* Typing cursor */
 .typed-cursor {
   display: inline-block;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 300;
   animation: blink 0.8s step-end infinite;
   margin-left: 2px;
@@ -1096,6 +1094,10 @@ body,
 
 #typed-text {
   color: var(--text-secondary);
+}
+
+body.edit-mode .typed-cursor {
+  display: none;
 }
 
 /* Parallax layers */
@@ -1135,17 +1137,6 @@ body,
   opacity: 0.7;
 }
 
-/* Hero content above parallax */
-.hero-content {
-  position: relative;
-  z-index: 2;
-}
-
-/* Timeline dot pulse */
-.exp-card::before {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
 .exp-card:hover::before {
   transform: scale(1.3);
   box-shadow: 0 0 0 6px var(--accent-soft);
@@ -1167,35 +1158,6 @@ body,
   cursor: pointer;
 }
 
-/* Stagger children utility */
-.stagger > *:nth-child(1) { transition-delay: 0.05s; }
-.stagger > *:nth-child(2) { transition-delay: 0.1s; }
-.stagger > *:nth-child(3) { transition-delay: 0.15s; }
-.stagger > *:nth-child(4) { transition-delay: 0.2s; }
-.stagger > *:nth-child(5) { transition-delay: 0.25s; }
-.stagger > *:nth-child(6) { transition-delay: 0.3s; }
-.stagger > *:nth-child(7) { transition-delay: 0.35s; }
-.stagger > *:nth-child(8) { transition-delay: 0.4s; }
-.stagger > *:nth-child(9) { transition-delay: 0.45s; }
-.stagger > *:nth-child(10) { transition-delay: 0.5s; }
-.stagger > *:nth-child(11) { transition-delay: 0.55s; }
-.stagger > *:nth-child(12) { transition-delay: 0.6s; }
-
-/* Mobile menu animation */
-.mobile-nav {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-}
-
-.mobile-nav.open {
-  display: flex;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
 /* Header scroll effect */
 .header.scrolled {
   box-shadow: 0 4px 30px rgba(0,0,0,0.15);
@@ -1206,19 +1168,19 @@ body,
   height: 64px;
 }
 
-/* Toast animation */
-.edit-hint {
-  animation: fadeInUp 0.4s ease;
-}
-
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 
   .reveal,
@@ -1226,6 +1188,7 @@ body,
   .reveal-left,
   .reveal-right {
     opacity: 1;
-    transform: none;
+    translate: none;
+    scale: none;
   }
 }
