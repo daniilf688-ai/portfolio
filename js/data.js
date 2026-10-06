@@ -9,10 +9,10 @@ const portfolioData = {
     title: "Frontend-разработчик & UI/UX дизайнер",
     subtitle: "Создаю современные и удобные цифровые продукты",
     about: "Привет! Я Даниил Борисович — frontend-разработчик и UI/UX дизайнер с более чем 6-летним опытом. Специализируюсь на создании быстрых, красивых и удобных веб-приложений. Люблю чистый код, продуманный дизайн и внимание к деталям. Работал с крупными компаниями и стартапами, всегда стремлюсь к результату, который радует пользователей.",
-    email: "daniil.borisovich@example.com",
-    phone: "+7 (999) 123-45-67",
-    location: "Москва, Россия",
-    telegram: "@daniil_dev",
+    email: "daniilf688@gmail.com",
+    phone: "+7 (952) 431-40-30",
+    location: "Алексеевка, Белгородская обл.",
+    telegram: "@DaniilFinoshkin",
     github: "github.com/daniil-borisovich",
     linkedin: "linkedin.com/in/daniil-borisovich"
   },
@@ -67,6 +67,25 @@ const portfolioData = {
         "Освоил React и современные подходы к разработке",
         "Получил благодарность за качество кода и скорость работы"
       ]
+    }
+  ],
+
+  // Хобби и увлечения
+  hobbies: [
+    {
+      title: "Фотография",
+      description: "Снимаю городские пейзажи и путешествия, увлекаюсь плёночной фотографией.",
+      image: "https://picsum.photos/seed/photo/600/400"
+    },
+    {
+      title: "Горные походы",
+      description: "Хожу в походы по Кавказу и Алтаю, люблю ночёвки в палатке под звёздами.",
+      image: "https://picsum.photos/seed/mountains/600/400"
+    },
+    {
+      title: "Настольные игры",
+      description: "Собираю компанию на партии в европейские и кооперативные настолки.",
+      image: "https://picsum.photos/seed/boardgames/600/400"
     }
   ],
 

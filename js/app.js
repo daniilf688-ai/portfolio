@@ -28,8 +28,10 @@
   function saveData() {
     try {
       localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+      return true;
     } catch (e) {
       console.warn('Could not save data', e);
+      return false;
     }
   }
 
@@ -38,6 +40,12 @@
     renderAll();
     initTheme();
     initEditMode();
+    initProjectImageEdit();
+    initAddSkill();
+    initAddHobby();
+    initAddExp();
+    initAddProject();
+    initDeleteCards();
     initContactForm();
     initMobileMenu();
     initScrollAnimations();
@@ -54,6 +62,7 @@
     renderSkills();
     renderExperience();
     renderProjects();
+    renderHobbies();
     renderContact();
   }
 
@@ -77,30 +86,37 @@
   }
 
   // ---------- SKILLS ----------
+  function skillCardHtml(skill, index) {
+    const level = Math.min(100, Math.max(0, Number(skill.level) || 0));
+    return `
+      <div class="skill-card reveal-scale" data-index="${index}">
+        <button type="button" class="delete-card-btn" data-scope="skills" data-index="${index}" title="Удалить навык" aria-label="Удалить навык">✕</button>
+        <div class="skill-header">
+          <span class="skill-name">${esc(skill.name)}</span>
+          <span class="skill-level">${level}%</span>
+        </div>
+        <div class="skill-bar">
+          <div class="skill-progress" style="--target-width: ${level}%"></div>
+        </div>
+        <div class="skill-category">${esc(skill.category)}</div>
+      </div>
+    `;
+  }
+
   function renderSkills() {
     const container = document.getElementById('skills-grid');
-    container.innerHTML = portfolioData.skills.map((skill) => {
-      const level = Math.min(100, Math.max(0, Number(skill.level) || 0));
-      return `
-        <div class="skill-card reveal-scale">
-          <div class="skill-header">
-            <span class="skill-name">${esc(skill.name)}</span>
-            <span class="skill-level">${level}%</span>
-          </div>
-          <div class="skill-bar">
-            <div class="skill-progress" style="--target-width: ${level}%"></div>
-          </div>
-          <div class="skill-category">${esc(skill.category)}</div>
-        </div>
-      `;
-    }).join('');
+    container.innerHTML = portfolioData.skills.map(skillCardHtml).join('');
   }
 
   // ---------- EXPERIENCE ----------
-  function renderExperience() {
-    const container = document.getElementById('experience-list');
-    container.innerHTML = portfolioData.experience.map((exp) => `
-      <div class="exp-card reveal">
+  function expCardHtml(exp, index) {
+    return `
+      <div class="exp-card reveal" data-index="${index}">
+        <button type="button" class="delete-card-btn" data-scope="exp" data-index="${index}" title="Удалить запись" aria-label="Удалить запись">✕</button>
+        <div class="exp-media${exp.image ? ' has-image' : ''}">
+          ${exp.image ? `<img src="${esc(exp.image)}" alt="${esc(exp.company)}" loading="lazy" decoding="async">` : ''}
+          <button type="button" class="image-edit-btn" data-scope="exp" data-index="${index}">${exp.image ? 'Заменить фото' : 'Добавить фото'}</button>
+        </div>
         <div class="exp-header">
           <div class="exp-company">${esc(exp.company)}</div>
           <div class="exp-period">${esc(exp.period)}</div>
@@ -111,16 +127,23 @@
           ${exp.achievements.map((a) => `<li>${esc(a)}</li>`).join('')}
         </ul>
       </div>
-    `).join('');
+    `;
+  }
+
+  function renderExperience() {
+    const container = document.getElementById('experience-list');
+    container.innerHTML = portfolioData.experience.map(expCardHtml).join('');
   }
 
   // ---------- PROJECTS ----------
   function renderProjects() {
     const container = document.getElementById('projects-grid');
-    container.innerHTML = portfolioData.projects.map((proj) => `
-      <article class="project-card reveal-scale">
+    container.innerHTML = portfolioData.projects.map((proj, index) => `
+      <article class="project-card reveal-scale" data-index="${index}">
+        <button type="button" class="delete-card-btn" data-scope="projects" data-index="${index}" title="Удалить проект" aria-label="Удалить проект">✕</button>
         <div class="project-image">
           <img src="${esc(proj.image)}" alt="${esc(proj.title)}" width="600" height="400" loading="lazy" decoding="async">
+          <button type="button" class="image-edit-btn" data-index="${index}">Заменить фото</button>
         </div>
         <div class="project-body">
           <h3 class="project-title">${esc(proj.title)}</h3>
@@ -131,6 +154,193 @@
         </div>
       </article>
     `).join('');
+  }
+
+  // ---------- HOBBIES ----------
+  function hobbyCardHtml(hobby, index) {
+    return `
+      <article class="project-card reveal-scale" data-index="${index}" data-scope="hobby">
+        <button type="button" class="delete-card-btn" data-scope="hobby" data-index="${index}" title="Удалить хобби" aria-label="Удалить хобби">✕</button>
+        <div class="project-image">
+          <img src="${esc(hobby.image)}" alt="${esc(hobby.title)}" width="600" height="400" loading="lazy" decoding="async">
+          <button type="button" class="image-edit-btn" data-scope="hobby" data-index="${index}">Заменить фото</button>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">${esc(hobby.title)}</h3>
+          <p class="project-desc">${esc(hobby.description)}</p>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderHobbies() {
+    const container = document.getElementById('hobbies-grid');
+    container.innerHTML = (portfolioData.hobbies || []).map(hobbyCardHtml).join('');
+  }
+
+  function initAddExp() {
+    const btn = document.getElementById('add-exp-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      if (!document.body.classList.contains('edit-mode')) return;
+      const index = portfolioData.experience.length;
+      portfolioData.experience.push({
+        company: 'Новая компания',
+        position: 'Должность',
+        period: '2024 — н.в.',
+        description: 'Краткое описание вашего опыта...',
+        achievements: ['Первое достижение']
+      });
+
+      const container = document.getElementById('experience-list');
+      container.insertAdjacentHTML('beforeend', expCardHtml(portfolioData.experience[index], index));
+      const card = container.lastElementChild;
+      card.classList.add('visible');
+      if (index < 20) card.style.setProperty('--stagger', '0s');
+      enableExperienceEditing();
+      measureSections();
+      showToast('Новый опыт добавлен — отредактируйте текст');
+    });
+  }
+
+  function initAddProject() {
+    const btn = document.getElementById('add-project-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      if (!document.body.classList.contains('edit-mode')) return;
+      const index = portfolioData.projects.length;
+      portfolioData.projects.push({
+        title: 'Новый проект',
+        description: 'Краткое описание проекта...',
+        tags: ['Тег'],
+        image: 'https://picsum.photos/seed/project' + index + '/600/400',
+        link: '#'
+      });
+
+      const container = document.getElementById('projects-grid');
+      container.insertAdjacentHTML('beforeend', `
+        <article class="project-card reveal-scale" data-index="${index}">
+          <button type="button" class="delete-card-btn" data-scope="projects" data-index="${index}" title="Удалить проект" aria-label="Удалить проект">✕</button>
+          <div class="project-image">
+            <img src="${esc(portfolioData.projects[index].image)}" alt="${esc(portfolioData.projects[index].title)}" width="600" height="400" loading="lazy" decoding="async">
+            <button type="button" class="image-edit-btn" data-index="${index}">Заменить фото</button>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">${esc(portfolioData.projects[index].title)}</h3>
+            <p class="project-desc">${esc(portfolioData.projects[index].description)}</p>
+            <div class="project-tags">
+              ${portfolioData.projects[index].tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}
+            </div>
+          </div>
+        </article>
+      `);
+      const card = container.lastElementChild;
+      card.classList.add('visible');
+      if (index < 20) card.style.setProperty('--stagger', '0s');
+      enableProjectEditing();
+      measureSections();
+      showToast('Новый проект добавлен — отредактируйте текст');
+    });
+  }
+
+  function initDeleteCards() {
+    // Delegated so it keeps working after any re-render
+    document.addEventListener('click', (event) => {
+      if (!document.body.classList.contains('edit-mode')) return;
+      const btn = event.target.closest ? event.target.closest('.delete-card-btn') : null;
+      if (!btn) return;
+
+      const scope = btn.dataset.scope;
+      const index = Number(btn.dataset.index);
+      const lists = {
+        skills: () => portfolioData.skills,
+        exp: () => portfolioData.experience,
+        hobby: () => portfolioData.hobbies,
+        projects: () => portfolioData.projects
+      };
+      const getList = lists[scope];
+      if (!getList) return;
+
+      const list = getList();
+      const containerId = { skills: 'skills-grid', exp: 'experience-list', hobby: 'hobbies-grid', projects: 'projects-grid' }[scope];
+      const cardSelector = { skills: '.skill-card', exp: '.exp-card', hobby: '.project-card', projects: '.project-card' }[scope];
+
+      if (!list[index]) return;
+      if (list.length <= 1) {
+        showToast('Нельзя удалить последнюю запись');
+        return;
+      }
+
+      list.splice(index, 1);
+      const card = document.querySelector(`#${containerId} ${cardSelector}[data-index="${index}"]`);
+      if (card) {
+        // Re-inserting via render is fragile (reveal observer); remove the node
+        // and renumber the remaining data-index attributes in place.
+        card.remove();
+        document.querySelectorAll(`#${containerId} ${cardSelector}`).forEach((el, i) => {
+          el.dataset.index = String(i);
+        });
+        if (scope === 'skills') {
+          document.querySelectorAll(`#${containerId} ${cardSelector}`).forEach((el, i) => {
+            const progress = el.querySelector('.skill-progress');
+            if (progress) progress.style.setProperty('--target-width', `${portfolioData.skills[i].level}%`);
+          });
+        }
+      }
+      measureSections();
+      showToast('Запись удалена — нажмите «Сохранить»');
+    });
+  }
+
+  // ---------- HOBBIES (edit mode) ----------
+  function enableHobbyEditing() {
+    qsa('#hobbies-grid .project-card').forEach((card) => {
+      const title = card.querySelector('.project-title');
+      const desc = card.querySelector('.project-desc');
+      if (title) title.contentEditable = 'true';
+      if (desc) desc.contentEditable = 'true';
+    });
+  }
+
+  function saveHobbyEdits() {
+    qsa('#hobbies-grid .project-card').forEach((card) => {
+      const hobby = portfolioData.hobbies[Number(card.dataset.index)];
+      if (!hobby) return;
+      const titleEl = card.querySelector('.project-title');
+      const descEl = card.querySelector('.project-desc');
+      const title = cleanEditableText(titleEl && titleEl.innerText);
+      const desc = cleanEditableText(descEl && descEl.innerText);
+      if (title) hobby.title = title;
+      if (desc) hobby.description = desc;
+      if (titleEl) titleEl.textContent = hobby.title;
+      if (descEl) descEl.textContent = hobby.description;
+    });
+  }
+
+  function initAddHobby() {
+    const btn = document.getElementById('add-hobby-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      if (!document.body.classList.contains('edit-mode')) return;
+      const index = portfolioData.hobbies.length;
+      portfolioData.hobbies.push({
+        title: 'Новое хобби',
+        description: 'Опишите своё увлечение...',
+        image: 'https://picsum.photos/seed/hobby' + index + '/600/400'
+      });
+
+      const container = document.getElementById('hobbies-grid');
+      container.insertAdjacentHTML('beforeend', hobbyCardHtml(portfolioData.hobbies[index], index));
+      const card = container.lastElementChild;
+      card.classList.add('visible');
+      if (index < 20) card.style.setProperty('--stagger', '0s');
+      enableHobbyEditing();
+      measureSections();
+      showToast('Новое хобби добавлено — отредактируйте текст');
+    });
   }
 
   // ---------- CONTACT ----------
@@ -357,6 +567,292 @@
       const el = document.getElementById(id);
       if (el) el.contentEditable = 'true';
     });
+
+    enableProjectEditing();
+    enableSkillEditing();
+    enableExperienceEditing();
+    enableHobbyEditing();
+  }
+
+  // ---------- SKILLS (edit mode) ----------
+  function enableSkillEditing() {
+    qsa('.skill-card').forEach((card) => {
+      ['.skill-name', '.skill-level', '.skill-category'].forEach((sel) => {
+        const el = card.querySelector(sel);
+        if (el) el.contentEditable = 'true';
+      });
+    });
+  }
+
+  function saveSkillEdits() {
+    qsa('.skill-card').forEach((card) => {
+      const skill = portfolioData.skills[Number(card.dataset.index)];
+      if (!skill) return;
+
+      const nameEl = card.querySelector('.skill-name');
+      const levelEl = card.querySelector('.skill-level');
+      const catEl = card.querySelector('.skill-category');
+
+      const name = cleanEditableText(nameEl && nameEl.innerText);
+      const cat = cleanEditableText(catEl && catEl.innerText);
+      if (name) skill.name = name;
+      if (cat) skill.category = cat;
+
+      // Level is edited as "95%" — keep only digits and clamp to 0..100
+      const digits = String((levelEl && levelEl.innerText) || '').replace(/[^\d]/g, '');
+      if (digits !== '') {
+        skill.level = Math.min(100, Math.max(0, parseInt(digits, 10)));
+      }
+
+      // Update the card in place (a re-render would need re-observing)
+      if (nameEl) nameEl.textContent = skill.name;
+      if (catEl) catEl.textContent = skill.category;
+      if (levelEl) levelEl.textContent = `${skill.level}%`;
+      const progress = card.querySelector('.skill-progress');
+      if (progress) progress.style.setProperty('--target-width', `${skill.level}%`);
+    });
+  }
+
+  function initAddSkill() {
+    const btn = document.getElementById('add-skill-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      if (!document.body.classList.contains('edit-mode')) return;
+      const index = portfolioData.skills.length;
+      portfolioData.skills.push({ name: 'Новый навык', level: 50, category: 'Категория' });
+
+      const container = document.getElementById('skills-grid');
+      container.insertAdjacentHTML('beforeend', skillCardHtml(portfolioData.skills[index], index));
+      // Newly injected cards bypass the reveal observer, show them at once
+      const card = container.lastElementChild;
+      card.classList.add('visible');
+      if (index < 20) card.style.setProperty('--stagger', '0s');
+      enableSkillEditing();
+      const nameEl = card.querySelector('.skill-name');
+      if (nameEl) nameEl.focus();
+      measureSections();
+    });
+  }
+
+  // ---------- EXPERIENCE (edit mode) ----------
+  function enableExperienceEditing() {
+    qsa('.exp-card').forEach((card) => {
+      ['.exp-company', '.exp-period', '.exp-position', '.exp-desc'].forEach((sel) => {
+        const el = card.querySelector(sel);
+        if (el) el.contentEditable = 'true';
+      });
+      const list = card.querySelector('.exp-achievements');
+      if (list) list.contentEditable = 'true';
+    });
+  }
+
+  function saveExperienceEdits() {
+    qsa('.exp-card').forEach((card) => {
+      const exp = portfolioData.experience[Number(card.dataset.index)];
+      if (!exp) return;
+
+      const companyEl = card.querySelector('.exp-company');
+      const periodEl = card.querySelector('.exp-period');
+      const posEl = card.querySelector('.exp-position');
+      const descEl = card.querySelector('.exp-desc');
+      const listEl = card.querySelector('.exp-achievements');
+
+      const company = cleanEditableText(companyEl && companyEl.innerText);
+      const period = cleanEditableText(periodEl && periodEl.innerText);
+      const position = cleanEditableText(posEl && posEl.innerText);
+      const desc = cleanEditableText(descEl && descEl.innerText);
+      if (company) exp.company = company;
+      if (period) exp.period = period;
+      if (position) exp.position = position;
+      if (desc) exp.description = desc;
+
+      if (listEl) {
+        // One achievement per line while editing; rebuild the <li> list
+        const items = String(listEl.innerText || '')
+          .split('\n')
+          .map(cleanEditableText)
+          .filter(Boolean);
+        if (items.length) exp.achievements = items;
+        listEl.textContent = '';
+        exp.achievements.forEach((text) => {
+          const li = document.createElement('li');
+          li.textContent = text;
+          listEl.appendChild(li);
+        });
+      }
+
+      if (companyEl) companyEl.textContent = exp.company;
+      if (periodEl) periodEl.textContent = exp.period;
+      if (posEl) posEl.textContent = exp.position;
+      if (descEl) descEl.textContent = exp.description;
+    });
+  }
+
+  // ---------- PROJECT CARDS (edit mode) ----------
+  function enableProjectEditing() {
+    qsa('#projects-grid .project-card').forEach((card) => {
+      const title = card.querySelector('.project-title');
+      const desc = card.querySelector('.project-desc');
+      const tags = card.querySelector('.project-tags');
+      const proj = portfolioData.projects[Number(card.dataset.index)];
+      if (title) title.contentEditable = 'true';
+      if (desc) desc.contentEditable = 'true';
+      if (tags) {
+        // Show tags as plain comma-separated text while editing;
+        // pills are rebuilt from the parsed list on save.
+        tags.textContent = proj ? proj.tags.join(', ') : '';
+        tags.contentEditable = 'true';
+      }
+    });
+  }
+
+  // Collapses whitespace so stray line breaks from contenteditable don't
+  // leak into the saved data.
+  function cleanEditableText(value) {
+    return String(value || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function saveProjectEdits() {
+    qsa('#projects-grid .project-card').forEach((card) => {
+      const proj = portfolioData.projects[Number(card.dataset.index)];
+      if (!proj) return;
+
+      const titleEl = card.querySelector('.project-title');
+      const descEl = card.querySelector('.project-desc');
+      const tagsEl = card.querySelector('.project-tags');
+
+      const title = cleanEditableText(titleEl && titleEl.innerText);
+      const desc = cleanEditableText(descEl && descEl.innerText);
+      if (title) proj.title = title;
+      if (desc) proj.description = desc;
+
+      const tags = String((tagsEl && tagsEl.innerText) || '')
+        .split(',')
+        .map(cleanEditableText)
+        .filter(Boolean);
+      if (tags.length) proj.tags = tags;
+
+      // Rebuild tag pills from the parsed list
+      if (tagsEl) {
+        tagsEl.textContent = '';
+        proj.tags.forEach((text) => {
+          const span = document.createElement('span');
+          span.className = 'tag';
+          span.textContent = text;
+          tagsEl.appendChild(span);
+        });
+      }
+    });
+  }
+
+  function initProjectImageEdit() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.hidden = true;
+    document.body.appendChild(input);
+
+    let pending = { scope: 'project', index: -1 };
+
+    // Downscale to keep data URLs small enough for localStorage (~5 MB quota)
+    function resizeImage(file, callback) {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1000;
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        if (w > MAX) {
+          h = Math.round(h * MAX / w);
+          w = MAX;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        // WebP keeps transparency and compresses better; fall back to JPEG
+        const out = canvas.toDataURL('image/webp', 0.8);
+        callback(out.indexOf('data:image/webp') === 0 ? out : canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        callback(null);
+      };
+      img.src = url;
+    }
+
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      const list = pending.scope === 'exp' ? portfolioData.experience
+        : pending.scope === 'hobby' ? (portfolioData.hobbies || [])
+        : portfolioData.projects;
+      const item = list[pending.index];
+      input.value = '';
+      if (!file || !item || pending.index < 0) return;
+
+      if (file.type.indexOf('image/') !== 0) {
+        showToast('Можно загружать только изображения');
+        return;
+      }
+
+      resizeImage(file, (dataUrl) => {
+        if (!dataUrl) {
+          showToast('Не удалось прочитать изображение');
+          return;
+        }
+        item.image = dataUrl;
+
+        if (pending.scope === 'exp') {
+          const card = document.querySelector(`.exp-card[data-index="${pending.index}"]`);
+          const media = card && card.querySelector('.exp-media');
+          if (media) {
+            let img = media.querySelector('img');
+            if (!img) {
+              img = document.createElement('img');
+              img.setAttribute('loading', 'lazy');
+              img.setAttribute('decoding', 'async');
+              media.insertBefore(img, media.firstChild);
+            }
+            img.src = dataUrl;
+            img.alt = item.company || '';
+            media.classList.add('has-image');
+            const btn = media.querySelector('.image-edit-btn');
+            if (btn) btn.textContent = 'Заменить фото';
+          }
+        } else if (pending.scope === 'hobby') {
+          const card = document.querySelector(`#hobbies-grid .project-card[data-index="${pending.index}"]`);
+          const img = card && card.querySelector('img');
+          if (img) {
+            img.src = dataUrl;
+            img.alt = item.title;
+          }
+        } else {
+          const card = document.querySelector(`#projects-grid .project-card[data-index="${pending.index}"]`);
+          const img = card && card.querySelector('img');
+          if (img) {
+            img.src = dataUrl;
+            img.alt = item.title;
+          }
+        }
+        showToast('Фото обновлено — нажмите «Сохранить»');
+      });
+    });
+
+    // Delegated so it keeps working after any re-render
+    document.addEventListener('click', (event) => {
+      if (!document.body.classList.contains('edit-mode')) return;
+      const btn = event.target.closest ? event.target.closest('.image-edit-btn') : null;
+      if (!btn) return;
+      event.preventDefault();
+      pending = {
+        scope: btn.dataset.scope || 'project',
+        index: Number(btn.dataset.index)
+      };
+      input.click();
+    });
   }
 
   function disableEditing() {
@@ -392,12 +888,21 @@
     p.location = readField('info-location', 'contact-location', p.location);
     p.telegram = readField('info-telegram', 'contact-telegram', p.telegram);
 
-    saveData();
+    saveProjectEdits();
+    saveSkillEdits();
+    saveExperienceEdits();
+    saveHobbyEdits();
+
+    const savedOk = saveData();
     renderHero();
     renderAbout();
     renderContact();
     measureSections();
-    showToast('Изменения сохранены!');
+    if (savedOk) {
+      showToast('Изменения сохранены!');
+    } else {
+      showToast('Не удалось сохранить: хранилище браузера переполнено');
+    }
   }
 
   function showToast(message) {

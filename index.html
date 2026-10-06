@@ -28,7 +28,11 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/v1-tilt.css">
+  <script src="js/data.js" defer></script>
+  <script src="js/app.js" defer></script>
+  <script src="js/v1-button-tilt.js" defer></script>
+  <script>document.documentElement.setAttribute('data-tilt-style','3');</script>
 </head>
 <body>
 
@@ -44,6 +48,7 @@
         <a href="#skills">Навыки</a>
         <a href="#experience">Опыт</a>
         <a href="#projects">Проекты</a>
+        <a href="#hobbies">Хобби</a>
         <a href="#contact">Контакты</a>
       </nav>
 
@@ -68,6 +73,7 @@
     <a href="#skills">Навыки</a>
     <a href="#experience">Опыт</a>
     <a href="#projects">Проекты</a>
+    <a href="#hobbies">Хобби</a>
     <a href="#contact">Контакты</a>
   </nav>
 
@@ -149,6 +155,7 @@
       <div class="skills-grid" id="skills-grid">
         <!-- Рендерится из data.js -->
       </div>
+      <button type="button" class="add-item-btn" id="add-skill-btn">+ Добавить навык</button>
     </div>
   </section>
 
@@ -160,6 +167,7 @@
       <div class="timeline" id="experience-list">
         <!-- Рендерится из data.js -->
       </div>
+      <button type="button" class="add-item-btn" id="add-exp-btn">+ Добавить опыт</button>
     </div>
   </section>
 
@@ -171,6 +179,19 @@
       <div class="projects-grid" id="projects-grid">
         <!-- Рендерится из data.js -->
       </div>
+      <button type="button" class="add-item-btn" id="add-project-btn">+ Добавить проект</button>
+    </div>
+  </section>
+
+  <!-- HOBBIES -->
+  <section id="hobbies">
+    <div class="container">
+      <h2 class="section-title">Хобби</h2>
+      <p class="section-subtitle">Чем я увлекаюсь в свободное время</p>
+      <div class="projects-grid" id="hobbies-grid">
+        <!-- Рендерится из data.js -->
+      </div>
+      <button type="button" class="add-item-btn" id="add-hobby-btn">+ Добавить хобби</button>
     </div>
   </section>
 
@@ -243,7 +264,7 @@
 
   <!-- Edit hint -->
   <div class="edit-hint" id="edit-hint">
-    Режим редактирования: кликайте на текст и меняйте. Нажмите «Сохранить».
+    Режим редактирования: кликайте на текст и меняйте, у проектов — «Заменить фото». Нажмите «Сохранить».
   </div>
 
   <script src="js/data.js" defer></script>
