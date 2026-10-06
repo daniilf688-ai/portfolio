@@ -1,7 +1,9 @@
 /* 1-TILT интеграция: радужные градиенты + 3D-tilt кнопок (style 3 по умолчанию) */
-@import url('style.css');
+/* 1-TILT: стиль базы подключается отдельным <link> в index.html (параллельная загрузка вместо @import) */
 
-/* 3D-экструзия кнопок */
+/* 3D-экструзия кнопок.
+   will-change включается только на время наведения/нажатия — постоянный
+   на ~40 элементах создавал лишние compositor-слои. */
 .btn,
 .theme-btn,
 .edit-btn,
@@ -10,6 +12,16 @@
 .delete-card-btn,
 .image-edit-btn {
   transform-style: preserve-3d;
+}
+
+.btn:hover, .btn:active,
+.theme-btn:hover, .theme-btn:active,
+.edit-btn:hover, .edit-btn:active,
+.burger:hover,
+.add-item-btn:hover,
+.delete-card-btn:hover,
+.image-edit-btn:hover,
+.mobile-nav a:hover {
   will-change: transform;
 }
 

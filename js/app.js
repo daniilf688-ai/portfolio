@@ -114,7 +114,7 @@
       <div class="exp-card reveal" data-index="${index}">
         <button type="button" class="delete-card-btn" data-scope="exp" data-index="${index}" title="Удалить запись" aria-label="Удалить запись">✕</button>
         <div class="exp-media${exp.image ? ' has-image' : ''}">
-          ${exp.image ? `<img src="${esc(exp.image)}" alt="${esc(exp.company)}" loading="lazy" decoding="async">` : ''}
+          ${exp.image ? `<img src="${esc(exp.image)}" alt="${esc(exp.company)}" width="600" height="400" loading="lazy" decoding="async">` : ''}
           <button type="button" class="image-edit-btn" data-scope="exp" data-index="${index}">${exp.image ? 'Заменить фото' : 'Добавить фото'}</button>
         </div>
         <div class="exp-header">
